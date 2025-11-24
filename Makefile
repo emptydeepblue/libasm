@@ -35,15 +35,30 @@ clean:
 fclean: clean
 	$(RM) $(NAME)
 	$(RM) test_program
+	$(RM) comprehensive_test stress_test
 
 re: fclean all
 
-test: all
-	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o test_program
-	@./test_program
+demo: all
+	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o demo
+	@./demo
+	@rm -f demo
 
-valgrind: all
-	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o test_program
-	@valgrind --leak-check=full ./test_program
+valdemo: all
+	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o demo
+	@valgrind --leak-check=full ./demo
+	@rm -f demo
 
-.PHONY: all clean fclean re test valgrind
+test-%: all
+	@echo "Building stress test suite..."
+	@gcc -Wall -Wextra -Werror tests/$*.test.c -L. -lasm -o $*_test
+	@./$*_test
+	@rm -f $*_test
+
+valtest-%: all
+	@echo "Building valgrind test for $*..."
+	@gcc -Wall -Wextra -Werror tests/$*.test.c -L. -lasm -o $*_test
+	@valgrind --leak-check=full ./$*_test
+	@rm -f $*_test
+
+.PHONY: all clean fclean re demo valdemo test-% valtest-%
