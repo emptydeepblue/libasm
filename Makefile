@@ -42,4 +42,8 @@ test: all
 	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o test_program
 	@./test_program
 
-.PHONY: all clean fclean re test
+valgrind: all
+	@gcc -Wall -Wextra -Werror main.c -L. -lasm -o test_program
+	@valgrind --leak-check=full ./test_program
+
+.PHONY: all clean fclean re test valgrind
