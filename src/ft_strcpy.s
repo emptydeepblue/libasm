@@ -19,5 +19,6 @@ ft_strcpy:
 
     cmp bl, 0               ; Check if it was the null terminator
     jne .loop
+
 .done:
     ret

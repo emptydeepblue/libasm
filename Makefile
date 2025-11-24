@@ -9,7 +9,11 @@ NAME = libasm.a
 SRCDIR = src
 OBJDIR = obj
 SRCS = $(SRCDIR)/ft_strlen.s \
-	   $(SRCDIR)/ft_strcpy.s 
+	   $(SRCDIR)/ft_strcpy.s \
+	   $(SRCDIR)/ft_strcmp.s \
+	   $(SRCDIR)/ft_write.s \
+	   $(SRCDIR)/ft_read.s \
+	   $(SRCDIR)/ft_strdup.s
 OBJS = $(SRCS:$(SRCDIR)/%.s=$(OBJDIR)/%.o)
 NASMFLAGS = -f elf64
 RM = rm -f
@@ -30,6 +34,7 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) test_program
 
 re: fclean all
 
