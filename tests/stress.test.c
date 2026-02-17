@@ -60,6 +60,26 @@ void test_adversarial_strlen() {
     }
     total++;
     
+    // Test 4: Enormous string (1 million chars)
+    printf("\n4. Enormous string (1000000 chars):\n");
+    char *enormous_str = malloc(1000001);
+    if (!enormous_str) {
+        printf("❌ Failed: malloc failed\n");
+        total++;
+    } else {
+        memset(enormous_str, 'E', 1000000);
+        enormous_str[1000000] = '\0';
+        size_t result = ft_strlen(enormous_str);
+        if (result == 1000000) {
+            printf("✅ Correct: %zu\n", result);
+            passed++;
+        } else {
+            printf("❌ Failed: got %zu, expected 1000000\n", result);
+        }
+        free(enormous_str);
+        total++;
+    }
+    
     printf("\nPassed: %d/%d\n", passed, total);
 }
 
@@ -317,6 +337,84 @@ void test_adversarial_read() {
     close(fd);
     total++;
     
+    // Test 5: Large file read (1MB)
+    printf("\n5. Large file read (1MB):\n");
+    char large_filename[] = "/tmp/large_stress_test_XXXXXX";
+    int large_fd = mkstemp(large_filename);
+    if (large_fd == -1) {
+        printf("❌ Failed: mkstemp failed\n");
+        total++;
+        goto cleanup;
+    }
+    const size_t large_size = 1024 * 1024; // 1MB
+    char *large_data = malloc(large_size);
+    if (!large_data) {
+        printf("❌ Failed: malloc failed\n");
+        close(large_fd);
+        unlink(large_filename);
+        total++;
+        goto cleanup;
+    }
+    memset(large_data, 'R', large_size);
+    size_t written = 0;
+    while (written < large_size) {
+        ssize_t w = write(large_fd, large_data + written, large_size - written);
+        if (w == -1) {
+            printf("❌ Failed: write failed\n");
+            close(large_fd);
+            free(large_data);
+            unlink(large_filename);
+            total++;
+            goto cleanup;
+        }
+        written += w;
+    }
+    close(large_fd);
+    char *read_buf = malloc(large_size);
+    if (!read_buf) {
+        printf("❌ Failed: malloc for read failed\n");
+        free(large_data);
+        unlink(large_filename);
+        total++;
+        goto cleanup;
+    }
+    int fd_read = open(large_filename, O_RDONLY);
+    if (fd_read == -1) {
+        printf("❌ Failed: open for read failed\n");
+        free(large_data);
+        free(read_buf);
+        unlink(large_filename);
+        total++;
+        goto cleanup;
+    }
+    size_t read_total = 0;
+    while (read_total < large_size) {
+        ssize_t r = ft_read(fd_read, read_buf + read_total, large_size - read_total);
+        if (r == -1) {
+            printf("❌ Failed: ft_read failed\n");
+            close(fd_read);
+            free(large_data);
+            free(read_buf);
+            unlink(large_filename);
+            total++;
+            goto cleanup;
+        }
+        if (r == 0) break; // EOF
+        read_total += r;
+    }
+    close(fd_read);
+    if (read_total == large_size && memcmp(read_buf, large_data, large_size) == 0) {
+        printf("✅ Correct: read 1MB correctly\n");
+        passed++;
+    } else {
+        printf("❌ Failed: read %zu bytes, expected %zu\n", read_total, large_size);
+    }
+    free(large_data);
+    free(read_buf);
+    unlink(large_filename);
+    total++;
+    
+    cleanup:
     unlink(filename);
     printf("\nPassed: %d/%d\n", passed, total);
 }
