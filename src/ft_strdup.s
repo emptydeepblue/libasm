@@ -5,37 +5,41 @@ section .text
     extern ft_strcpy
 
 ft_strdup:
-    ; Input rdi = source
-    ; Output rdx = duplicate of the source
+    ; Input:  rdi = source string
+    ; Output: rax = duplicate string, or NULL on failure
+    ;
+    ; Stack layout at entry: rsp % 16 = 8  (SysV ABI: call pushed return addr)
+    ; push r12 makes rsp % 16 = 0, so every subsequent call sees rsp % 16 = 8 ✓
+    ; r12 is callee-saved — we use it to hold the source pointer across calls.
+
+    push r12                        ; align stack + save r12 (callee-saved)
 
     test rdi, rdi
     jz .return_null
 
+    mov r12, rdi                    ; save source pointer
 
-    ; Calculate length of source string
-    call ft_strlen        ; rax = length of source string  
-    inc rax               ; Include space for null terminator
+    ; --- ft_strlen(r12) → rax = length ---
+    call ft_strlen                  ; rsp % 16 = 8 at callee entry ✓
+    inc rax                         ; +1 for null terminator
 
-    
-    ; Allocate memory for duplicate string
-    push rdi                        ; Save source pointer
-    mov rdi, rax                    ; rdi = size to allocate
-    call malloc wrt ..plt           ; Input rdi = size
-    
+    ; --- malloc(rax) → rax = allocated buffer ---
+    mov rdi, rax
+    call malloc wrt ..plt           ; rsp % 16 = 8 at callee entry ✓
+
     test rax, rax
-    jz .malloc_failed             ; If malloc failed, return NULL
+    jz .return_null                 ; malloc failed → return NULL
 
-    ; Copy source string to allocated memory
-    mov rdi, rax              ; rdi = destination (allocated memory)
-    pop rsi                   ; rsi = source string
-    call ft_strcpy            ; Copy string
+    ; --- ft_strcpy(rax, r12) → rax = dst ---
+    mov rdi, rax                    ; dst = allocated buffer
+    mov rsi, r12                    ; src = saved source pointer
+    call ft_strcpy                  ; rsp % 16 = 8 at callee entry ✓
+                                    ; ft_strcpy returns dst in rax ✓
 
+    pop r12
     ret
 
-.malloc_failed:
-    pop rdi                   ; Restore source pointer
-    ; Fall through to return NULL
-
 .return_null:
-    xor rax, rax                ; Return NULL
+    xor rax, rax
+    pop r12
     ret
