@@ -5,6 +5,7 @@ ft_strcpy:
     ; Input: rdi = destination pointer
     ;        rsi = source pointer
     ; Output: rax = destination pointer (same as rdi)
+    push rbx                ; rbx is callee-saved (SysV ABI)
     mov rax, rdi            ; Save destination pointer to return later
 
     test rsi, rsi
@@ -21,4 +22,5 @@ ft_strcpy:
     jne .loop
 
 .done:
+    pop rbx
     ret

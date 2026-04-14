@@ -6,6 +6,8 @@ ft_strcmp:
     ;        rsi = s2
     ; Output: rax = 0 if s1 == s2, positive or negative value if not
 
+    push rbx                            ; rbx is callee-saved (SysV ABI)
+
     test rdi, rdi
     jz .handle_null
     test rsi, rsi
@@ -26,13 +28,16 @@ ft_strcmp:
     movzx rax, al
     movzx rbx, bl
     sub rax, rbx
+    pop rbx
     ret
 
 .equal:
     xor rax, rax                        ; Set rax to 0 for equal strings
+    pop rbx
     ret                                 ; Return with result in rax
 
 .handle_null:
-   mov rax, rdi
-   sub rax, rsi
-   ret
+    mov rax, rdi
+    sub rax, rsi
+    pop rbx
+    ret
