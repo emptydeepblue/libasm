@@ -150,7 +150,7 @@ void test_ft_strcmp() {
         
         if (same_sign) {
             if (strlen(tests[i].s1) > 100 || strlen(tests[i].s2) > 100) {
-                printf("✅ %-40s: (strings too long to display) = %d\n", 
+                printf("✅ %-40s: \"Lorem ipsum ...[13000+]\" = %d\n",
                        tests[i].description, result);
             } else {
             printf("✅ %-40s: \"%s\" vs \"%s\" = %d\n", 
