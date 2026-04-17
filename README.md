@@ -26,10 +26,10 @@ Recreate basic C functions using Intel syntax assembly to learn low-level progra
 ## 🛠️ Usage
 
 ```bash
-make          # Build libasm.a
-make test     # Run tests
-make clean    # Remove objects
-make fclean   # Remove all
+make                        # Build libasm.a
+make clean                  # Remove objects
+make fclean                 # Remove all
+make test-<test-suite>      # Run tests
 ```
 
 ## 📖 Prototypes
