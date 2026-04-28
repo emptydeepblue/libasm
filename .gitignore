@@ -3,3 +3,4 @@ en.subject.pdf
 
 # Ignore the compiled binary and object files
 libasm.a
+obj/
